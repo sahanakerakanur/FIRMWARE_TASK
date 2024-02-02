@@ -1,0 +1,38 @@
+#include <SoftwareSerial.h>
+
+#define BAUDRATE 2400
+#define DATASIZE 1000
+
+SoftwareSerial myserial(10, 11); // RX, TX pins on Arduino
+
+void setup() {
+  Serial.begin(9600);
+  myserial.begin(BAUDRATE);
+}
+
+void loop() {
+  receivedatafromMCU();
+}
+
+void receivedatafromMCU() {
+  unsigned long start = millis();
+  char receiveddata[DATASIZE];
+
+  for (int i = 0; i < DATASIZE; ++i) {
+    while (!myserial.available()); // Waits for data to be available
+    receiveddata[i] = myserial.read(); // Receive data
+  }
+
+  unsigned long end= millis();
+  printSpeed(DATASIZE * 8, end - start);
+
+  Serial.print("Data Received from MCU: ");
+  Serial.println(receiveddata);
+}
+
+void printSpeed(long bitsTransferred, unsigned long elapsedTime) {
+  float speed = (float)bitsTransferred / (float)elapsedTime * 1000.0; // bits/sec
+  Serial.print("Speed: ");
+  Serial.print(speed);
+  Serial.println(" bits/sec");
+}
